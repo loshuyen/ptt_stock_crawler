@@ -1,11 +1,22 @@
 from fastapi import FastAPI
-from utils.crawler import get_articles
-from schemas.article import Articles
+from utils.scheduler import scheduler, update_articles
+from schemas.article import Article
+from models.article import query_articles
 
 app = FastAPI()
 
+update_articles()
+
+try:
+    scheduler.start()
+except (KeyboardInterrupt, SystemExit):
+    print('Scheduler Stopped')
+
 @app.get('/')
-def articles() -> Articles:
-    url = 'https://www.ptt.cc/bbs/Stock/index.html'
-    articles = get_articles(url, 3)
-    return {'data': articles}
+def articles():
+    articles = query_articles()
+    articles_data = []
+    for article in articles:
+        id, title, date, rating, created_at = article
+        articles_data.append({'id': id, 'title': title, 'date': date, 'rating': rating, 'created_at': created_at})
+    return {'data': articles_data}

@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from utils.scheduler import scheduler, update_articles
-from schemas.article import Article
 from models.article import query_articles
 
 app = FastAPI()

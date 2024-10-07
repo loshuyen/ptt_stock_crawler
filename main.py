@@ -16,6 +16,8 @@ def articles():
     articles = query_articles()
     articles_data = []
     for article in articles:
-        id, title, date, rating, created_at = article
+        id, title, rating, date, created_at = article
+        if rating is not None and rating != '爆':
+            rating = int(rating)
         articles_data.append({'id': id, 'title': title, 'date': date, 'rating': rating, 'created_at': created_at})
     return {'data': articles_data}

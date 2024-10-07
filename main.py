@@ -1,22 +1,11 @@
-from bs4 import BeautifulSoup
-import requests
+from fastapi import FastAPI
+from utils.crawler import get_articles
+from schemas.article import Articles
 
-def get_articles(url, n):
-    next_url = url
-    headers = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'}
-    
-    for _ in range(n):
-        response = requests.get(next_url, headers=headers)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        articles = soup.find_all('div', class_='r-ent')
-        for article in articles:
-            span = article.find('div', class_='nrec').span
-            rating = span.text if span is not None else None
-            article_link = article.a
-            if article_link is not None:
-                date = article.find('div', class_='date').text
-                print(f'{rating} {date} {article_link.text}')
-        next_url = 'https://www.ptt.cc' + soup.find('a', string='‹ 上頁').get('href')
+app = FastAPI()
 
-url = 'https://www.ptt.cc/bbs/Stock/index.html'
-get_articles(url, 3)
+@app.get('/')
+def articles() -> Articles:
+    url = 'https://www.ptt.cc/bbs/Stock/index.html'
+    articles = get_articles(url, 3)
+    return {'data': articles}
